@@ -30,6 +30,12 @@ int main(void)
     /* Loop forever */
 	RCC_AHB1ENR |=(1<<0);
 	GPIOA_MODER |=(1<<10);
-	GPIOA_ODR |=(1<<5);
-	for(;;);
+	for(;;)
+	{
+		GPIOA_ODR |=(1<<5);
+		for ( volatile int i = 0; i < 500000; i++);
+		GPIOA_ODR &=~(1<<5);
+		for (volatile int i = 0; i < 500000; i++);
+
+	}
 }
