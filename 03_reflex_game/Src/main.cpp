@@ -33,6 +33,9 @@
 #define DEMCR              *((volatile uint32_t*) 0xE000EDFCU )
 #define ITM_STIMULUS_PORT0 *((volatile uint32_t*) 0xE0000000 )
 #define ITM_TRACE_EN       *((volatile uint32_t*) 0xE0000E00 )
+#define STK_CTRL  *((volatile uint32_t*)0xE000E010)
+#define STK_LOAD *((volatile uint32_t*)0xE000E014)
+#define STK_VAL *((volatile uint32_t*)0xE000E018)
 
 
 
@@ -50,30 +53,48 @@ extern "C" int __io_putchar(int ch)
     return ch;
 }
 
+void systick_init()
+{
+	STK_LOAD=15999;
+	STK_VAL=0;
+	STK_CTRL=(1<<0)|(1<<2);
 
+}
+
+void delay_ms(uint32_t ms)
+{
+	uint32_t compt=0;
+	while(compt<ms)
+	{
+		compt++;
+		while(!(STK_CTRL &(1<<16)))
+		{
+
+		}
+	}
+}
 int main(void)
 {
     /* Loop forever */
-	RCC_AHB1ENR |=(1<<0) |(1<<2);
-	GPIOA_MODER |=(1<<10);
-	std::cout << "Pret!\n";
+    RCC_AHB1ENR |=(1<<0) |(1<<2);
+    GPIOA_MODER |=(1<<10);
+    std::cout << "Pret!\n";
     /* Loop forever */
-	volatile uint32_t compteur=0;
+    volatile uint32_t ms=0;
+    systick_init();
+    for(;;)
+    {
 
-	for(;;)
-	{
+        while(GPIOC_IDR & (1<<13))
+        {
+        }
+        ms=0;
+        while(!(GPIOC_IDR & (1<<13)))
+        {
+            delay_ms(1);
+            ms++;
+        }
+        std::cout<<ms<<"ms"<<"\n";
 
-		while(GPIOC_IDR & (1<<13))
-		{
-		}
-		compteur=0;
-		while(!(GPIOC_IDR & (1<<13)))
-		{
-			compteur++;
-		}
-		std::cout<<compteur/1000<<"ms"<<"\n";
-
-
-
-	}
+    }
 }
