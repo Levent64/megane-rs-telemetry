@@ -88,13 +88,20 @@ int main(void)
         while(GPIOC_IDR & (1<<13))
         {
         }
-        ms=0;
         while(!(GPIOC_IDR & (1<<13)))
         {
-            delay_ms(1);
-            ms++;
         }
-        std::cout<<ms<<"ms"<<"\n";
+        delay_ms(3000);
+        GPIOA_ODR |=(1<<5);
+
+        ms=0;
+        while(GPIOC_IDR&(1<<13)){
+        	delay_ms(1);
+        	ms++;
+        }
+        GPIOA_ODR &=~(1<<5);
+        std::cout<<"Reaction : "<<ms<<" ms"<<"\n";
+        delay_ms(1000);
 
     }
 }
