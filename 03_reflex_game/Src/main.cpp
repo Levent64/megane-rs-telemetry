@@ -91,17 +91,34 @@ int main(void)
         while(!(GPIOC_IDR & (1<<13)))
         {
         }
-        delay_ms(3000);
-        GPIOA_ODR |=(1<<5);
 
-        ms=0;
-        while(GPIOC_IDR&(1<<13)){
+        bool triche=false;
+        for(uint32_t i=0; i<3000;i++)
+        {
         	delay_ms(1);
-        	ms++;
+        	if(!(GPIOC_IDR&(1<<13)))
+        	{
+        		triche=true;
+        		break;
+        	}
         }
-        GPIOA_ODR &=~(1<<5);
-        std::cout<<"Reaction : "<<ms<<" ms"<<"\n";
-        delay_ms(1000);
+        if(triche){
+        	std::cout<<"Triche!\n";
+        }
+        else{
+            GPIOA_ODR |=(1<<5);
+
+            ms=0;
+            while(GPIOC_IDR&(1<<13)){
+            	delay_ms(1);
+            	ms++;
+            }
+            GPIOA_ODR &=~(1<<5);
+            std::cout<<"Reaction : "<<ms<<" ms"<<"\n";
+            delay_ms(1000);
+
+        }
+
 
     }
 }
