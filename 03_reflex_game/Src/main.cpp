@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <stdint.h>
+#include <cstdlib>
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -95,7 +96,8 @@ int main(void)
         }
 
         bool triche=false;
-        for(uint32_t i=0; i<3000;i++)
+        uint32_t randomNum=rand()%2999+2000;
+        for(uint32_t i=0; i<randomNum;i++)
         {
         	delay_ms(1);
         	if(!(GPIOC_IDR&(1<<13)))
@@ -120,7 +122,8 @@ int main(void)
             	record=ms;
             }
             GPIOA_ODR &=~(1<<5);
-            std::cout<<"Reaction : "<<ms<<" ms "<<"record "<<record<<"\n";
+            std::cout<<"Reaction : "<<ms<<" ms "<<"record "<<record<<"duree "<<randomNum<<"\n";
+
             delay_ms(1000);
 
         }
