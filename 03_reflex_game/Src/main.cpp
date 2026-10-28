@@ -82,8 +82,10 @@ int main(void)
     /* Loop forever */
     volatile uint32_t ms=0;
     systick_init();
+    uint32_t record=1000000;
     for(;;)
     {
+
 
         while(GPIOC_IDR & (1<<13))
         {
@@ -113,8 +115,12 @@ int main(void)
             	delay_ms(1);
             	ms++;
             }
+            if (ms<record)
+            {
+            	record=ms;
+            }
             GPIOA_ODR &=~(1<<5);
-            std::cout<<"Reaction : "<<ms<<" ms"<<"\n";
+            std::cout<<"Reaction : "<<ms<<" ms "<<"record "<<record<<"\n";
             delay_ms(1000);
 
         }
