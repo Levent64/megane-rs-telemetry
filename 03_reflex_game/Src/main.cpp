@@ -122,7 +122,7 @@ int main(void)
             	record=ms;
             }
             GPIOA_ODR &=~(1<<5);
-            std::cout<<"Reaction : "<<ms<<" ms "<<"record "<<record<<"duree "<<randomNum<<"\n";
+            std::cout<<"Reaction : "<<ms<<" ms "<<"record "<<record<<" duree "<<randomNum<<"\n";
 
             delay_ms(1000);
 
