@@ -39,6 +39,12 @@
 #define STK_VAL *((volatile uint32_t*)0xE000E018)
 #define RCC_APB2ENR *((volatile uint32_t*)0x40023844)
 #define SYSCFG_EXTICR4 *((volatile uint32_t*)0x40013814)
+#define EXTI_IMR *((volatile uint32_t*)0x40013C00)
+#define EXTI_FTSR *((volatile uint32_t*)0x40013C0C)
+#define EXTI_PR *((volatile uint32_t*)0x40013C14)
+#define NVIC_ISER1 *((volatile uint32_t*)0xE000E104)
+
+
 
 
 
@@ -54,6 +60,12 @@ extern "C" int __io_putchar(int ch)
 {
     ITM_SendChar(ch);
     return ch;
+}
+
+extern "C" void EXTI15_10_IRQHandler()
+{
+	EXTI_PR=(1<<13); //pour baisser le drapeau au bit 13
+	GPIOA_ODR ^=(1<<5); //inverser la led
 }
 
 void systick_init()
@@ -88,7 +100,10 @@ int main(void)
     uint32_t record=1000000;
 
     RCC_APB2ENR |=(1<<14);
-    SYSCFG_EXTICR4 |=(1<<ob0011);
+    SYSCFG_EXTICR4 |=(0b0010<<4);
+    EXTI_IMR |=(1<<13);
+    EXTI_FTSR |=(1<<13);
+    NVIC_ISER1 |=(1<<8);
     for(;;)
     {
 
