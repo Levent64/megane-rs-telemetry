@@ -17,6 +17,9 @@
  */
 
 #include <stdint.h>
+#define GPIOA_MODER *((volatile uint32_t*)0x40020000)
+#define GPIOA_AFRL *((volatile uint32_t*)0x40020020)
+#define RCC_AHB1ENR *((volatile uint32_t*)0x40023830)
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -25,5 +28,13 @@
 int main(void)
 {
     /* Loop forever */
+    RCC_AHB1ENR |=(1<<0);
+	GPIOA_MODER |=(0b10<<4);//PA2
+	GPIOA_MODER |=(0b10<<6);//PA3
+	GPIOA_AFRL |=(0b0111<<8);//PA2
+	GPIOA_AFRL |=(0b0111<<12);//PA3
+
+
+
 	for(;;);
 }
