@@ -20,6 +20,9 @@
 #define GPIOA_MODER *((volatile uint32_t*)0x40020000)
 #define GPIOA_AFRL *((volatile uint32_t*)0x40020020)
 #define RCC_AHB1ENR *((volatile uint32_t*)0x40023830)
+#define RCC_APB1ENR *((volatile uint32_t*)0x40023840)
+#define USART2_BRR *((volatile uint32_t*)0x40004408)
+#define USART2_CR1 *((volatile uint32_t*)0x4000440C)
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -33,6 +36,10 @@ int main(void)
 	GPIOA_MODER |=(0b10<<6);//PA3
 	GPIOA_AFRL |=(0b0111<<8);//PA2
 	GPIOA_AFRL |=(0b0111<<12);//PA3
+	RCC_APB1ENR |=(1<<17);
+	USART2_BRR |=(104<<4)|3;
+	USART2_CR1 |=(1<<3);//TE
+	USART2_CR1 |=(1<<13);//UE
 
 
 
