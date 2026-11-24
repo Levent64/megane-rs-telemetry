@@ -23,6 +23,8 @@
 #define RCC_APB1ENR *((volatile uint32_t*)0x40023840)
 #define USART2_BRR *((volatile uint32_t*)0x40004408)
 #define USART2_CR1 *((volatile uint32_t*)0x4000440C)
+#define USART2_SR *((volatile uint32_t*)0x40004400)
+#define USART2_DR *((volatile uint32_t*)0x40004404)
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -43,5 +45,11 @@ int main(void)
 
 
 
-	for(;;);
+	for(;;){
+		while(! USART2_SR&(1<<7))
+		{
+		}
+		USART2_DR='A';
+		for(volatile int i=0;i<500000;i++);
+	}
 }
