@@ -17,6 +17,7 @@
  */
 
 #include <stdint.h>
+#include <cstdio>
 #define GPIOA_MODER *((volatile uint32_t*)0x40020000)
 #define GPIOA_AFRL *((volatile uint32_t*)0x40020020)
 #define RCC_AHB1ENR *((volatile uint32_t*)0x40023830)
@@ -30,6 +31,7 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+//method to print a chain of chars
 void uart_print(const char* s)
 {
 	while(*s)
@@ -51,9 +53,12 @@ int main(void)
 	USART2_BRR |=(104<<4)|3;
 	USART2_CR1 |=(1<<3);//TE
 	USART2_CR1 |=(1<<13);//UE
-
+	uint32_t n=243;
 
 	uart_print("Hello UART!\r\n");
+	char buf[32];
+	snprintf(buf, sizeof(buf), "reaction: %lu ms \r\n", n);
+	uart_print(buf) ;
 	for(;;){
 	}
 
