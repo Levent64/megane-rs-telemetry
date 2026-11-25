@@ -18,6 +18,9 @@
 
 #include <stdint.h>
 #include <cstdio>
+
+#include <iostream>
+#include <cstdlib>
 #define GPIOA_MODER *((volatile uint32_t*)0x40020000)
 #define GPIOA_AFRL *((volatile uint32_t*)0x40020020)
 #define RCC_AHB1ENR *((volatile uint32_t*)0x40023830)
@@ -26,6 +29,14 @@
 #define USART2_CR1 *((volatile uint32_t*)0x4000440C)
 #define USART2_SR *((volatile uint32_t*)0x40004400)
 #define USART2_DR *((volatile uint32_t*)0x40004404)
+#define GPIOC_IDR *((volatile uint32_t*)0x40020810)
+#define GPIOA_ODR *((volatile uint32_t*)0x40020014)
+#define DEMCR              *((volatile uint32_t*) 0xE000EDFCU )
+#define ITM_STIMULUS_PORT0 *((volatile uint32_t*) 0xE0000000 )
+#define ITM_TRACE_EN       *((volatile uint32_t*) 0xE0000E00 )
+#define STK_CTRL  *((volatile uint32_t*)0xE000E010)
+#define STK_LOAD *((volatile uint32_t*)0xE000E014)
+#define STK_VAL *((volatile uint32_t*)0xE000E018)
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
@@ -41,8 +52,44 @@ void uart_print(const char* s)
 		s++;
 	}
 }
+void ITM_SendChar(uint8_t ch)
+{
+    DEMCR |= (1 << 24);
+    ITM_TRACE_EN |= (1 << 0);
+    while(!(ITM_STIMULUS_PORT0 & 1));
+    ITM_STIMULUS_PORT0 = ch;
+}
+
+extern "C" int __io_putchar(int ch)
+{
+    ITM_SendChar(ch);
+    return ch;
+}
+
+void systick_init()
+{
+	STK_LOAD=15999;
+	STK_VAL=0;
+	STK_CTRL=(1<<0)|(1<<2);
+
+}
+
+void delay_ms(uint32_t ms)
+{
+	uint32_t compt=0;
+	while(compt<ms)
+	{
+		compt++;
+		while(!(STK_CTRL &(1<<16)))
+		{
+
+		}
+	}
+}
 int main(void)
 {
+
+	systick_init();
     /* Loop forever */
     RCC_AHB1ENR |=(1<<0);
 	GPIOA_MODER |=(0b10<<4);//PA2
@@ -53,13 +100,55 @@ int main(void)
 	USART2_BRR |=(104<<4)|3;
 	USART2_CR1 |=(1<<3);//TE
 	USART2_CR1 |=(1<<13);//UE
-	uint32_t n=243;
+    RCC_AHB1ENR |=(1<<0) |(1<<2);
+    GPIOA_MODER |=(1<<10);
+    volatile uint32_t ms=0;
+    uint32_t record=1000000;
 
 	uart_print("Hello UART!\r\n");
-	char buf[32];
-	snprintf(buf, sizeof(buf), "reaction: %lu ms \r\n", n);
-	uart_print(buf) ;
+	char buf[64];
 	for(;;){
+        while(GPIOC_IDR & (1<<13))
+        {
+        }
+        while(!(GPIOC_IDR & (1<<13)))
+        {
+        }
+
+        bool triche=false;
+        uint32_t randomNum=rand()%2999+2000;
+        for(uint32_t i=0; i<randomNum;i++)
+        {
+        	delay_ms(1);
+        	if(!(GPIOC_IDR&(1<<13)))
+        	{
+        		triche=true;
+        		break;
+        	}
+        }
+        if(triche){
+        	snprintf(buf, sizeof(buf), "triche!\r\n");
+        	uart_print(buf);
+        }
+        else{
+            GPIOA_ODR |=(1<<5);
+
+            ms=0;
+            while(GPIOC_IDR&(1<<13)){
+            	delay_ms(1);
+            	ms++;
+            }
+            if (ms<record)
+            {
+            	record=ms;
+            }
+            GPIOA_ODR &=~(1<<5);
+            snprintf(buf, sizeof(buf), "reaction: %lu ms record %lu ms \r\n", ms, record);
+            uart_print(buf);
+
+            delay_ms(1000);
+
+        }
 	}
 
 }
