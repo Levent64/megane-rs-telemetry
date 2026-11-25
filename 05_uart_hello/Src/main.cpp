@@ -30,6 +30,15 @@
   #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
 #endif
 
+void uart_print(const char* s)
+{
+	while(*s)
+	{
+		while(!(USART2_SR&(1<<7))){}
+		USART2_DR=*s;
+		s++;
+	}
+}
 int main(void)
 {
     /* Loop forever */
@@ -44,12 +53,8 @@ int main(void)
 	USART2_CR1 |=(1<<13);//UE
 
 
-
+	uart_print("Hello UART!\r\n");
 	for(;;){
-		while(! USART2_SR&(1<<7))
-		{
-		}
-		USART2_DR='A';
-		for(volatile int i=0;i<500000;i++);
 	}
+
 }
